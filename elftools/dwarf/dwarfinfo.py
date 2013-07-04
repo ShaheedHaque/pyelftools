@@ -17,6 +17,7 @@ from .abbrevtable import AbbrevTable
 from .lineprogram import LineProgram
 from .callframe import CallFrameInfo
 from .locationlists import LocationLists
+from .debugger import Pubnames, Pubtypes
 from .ranges import RangeLists
 
 
@@ -63,7 +64,9 @@ class DWARFInfo(object):
             debug_str_sec,
             debug_loc_sec,
             debug_ranges_sec,
-            debug_line_sec):
+            debug_line_sec,
+            debug_pubnames_sec, 
+            debug_pubtypes_sec):
         """ config:
                 A DwarfConfig object
 
@@ -81,6 +84,8 @@ class DWARFInfo(object):
         self.debug_loc_sec = debug_loc_sec
         self.debug_ranges_sec = debug_ranges_sec
         self.debug_line_sec = debug_line_sec
+        self.debug_pubnames_sec = debug_pubnames_sec
+        self.debug_pubtypes_sec = debug_pubtypes_sec
 
         # This is the DWARFStructs the context uses, so it doesn't depend on
         # DWARF format and address_size (these are determined per CU) - set them
@@ -179,6 +184,24 @@ class DWARFInfo(object):
             the DWARF data, or None if this section doesn't exist.
         """
         return RangeLists(self.debug_ranges_sec.stream, self.structs)
+
+    def pubnames(self):
+        """ Get the object which represents the .debug_pubnames section.
+
+        @return The object or None if we don't have a usable section.
+        """
+        if not self.debug_pubnames_sec:
+            return None
+        return Pubnames(self,  self.debug_pubnames_sec.stream, self.structs,  self.debug_info_sec.stream)
+
+    def pubtypes(self):
+        """ Get the object which represents the .debug_pubtypes section.
+
+        @return The object or None if we don't have a usable section.
+        """
+        if not self.debug_pubtypes_sec:
+            return None
+        return Pubtypes(self.debug_pubtypes_sec.stream, self.structs)
 
     #------ PRIVATE ------#
 

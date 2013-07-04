@@ -132,6 +132,7 @@ class DWARFStructs(object):
         self._create_dw_form()
         self._create_lineprog_header()
         self._create_callframe_entry_headers()
+        self._create_debugger_lookups()
 
     def _create_initial_length(self):
         def _InitialLength(name):
@@ -268,6 +269,18 @@ class DWARFStructs(object):
             self.Dwarf_offset('CIE_pointer'),
             self.Dwarf_target_addr('initial_location'),
             self.Dwarf_target_addr('address_range'))
+
+    def _create_debugger_lookups(self):
+        # Lookup by name: .debug_pubnames and .debug_pubtypes headers and
+        # entries from Section 6.1.1 of the Dwarf spec.
+        self.Dwarf_by_name_header = Struct('Dwarf_by_name_header',
+            self.Dwarf_initial_length('unit_length'),
+            self.Dwarf_uint16('version'),
+            self.Dwarf_offset('debug_info_offset'),
+            self.Dwarf_offset('debug_info_length'))
+        self.Dwarf_by_name_entry = Struct('Dwarf_by_name_entry',
+            self.Dwarf_offset('offset'),
+            If(lambda ctx: ctx.offset != 0, CString('name')))
 
     def _make_block_struct(self, length_field):
         """ Create a struct for DW_FORM_block<size>
