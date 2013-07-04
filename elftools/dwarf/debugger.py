@@ -34,7 +34,7 @@ class Pubnames(object):
                 #
                 # Find the specific DIE of interest.
                 #
-                return DIE(cu=cu, stream=self.debug_info, offset=symbol_shortcut.offset)
+                return DIE(cu=cu, stream=self.debug_info, offset=cu_shortcut.debug_info_offset + symbol_shortcut.offset)
         return None
 
     def iter(self):
