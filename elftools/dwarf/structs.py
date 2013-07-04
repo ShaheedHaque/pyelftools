@@ -11,7 +11,7 @@ from ..construct import (
     UBInt8, UBInt16, UBInt32, UBInt64, ULInt8, ULInt16, ULInt32, ULInt64,
     SBInt8, SBInt16, SBInt32, SBInt64, SLInt8, SLInt16, SLInt32, SLInt64,
     Adapter, Struct, ConstructError, If, RepeatUntil, Field, Rename, Enum,
-    Array, PrefixedArray, CString, Embed, StaticField
+    Array, PrefixedArray, CString, Embed, StaticField, Value
     )
 from ..common.construct_utils import RepeatUntilExcluding
 
@@ -281,6 +281,22 @@ class DWARFStructs(object):
         self.Dwarf_by_name_entry = Struct('Dwarf_by_name_entry',
             self.Dwarf_offset('offset'),
             If(lambda ctx: ctx.offset != 0, CString('name')))
+        # Lookup by address: .debug_aranges headers and entries from Section 
+        # 6.1.2 of the Dwarf spec.
+        self.Dwarf_by_address_header = Struct('Dwarf_by_address_header',
+            self.Dwarf_initial_length('unit_length'),
+            self.Dwarf_uint16('version'),
+            self.Dwarf_offset('debug_info_offset'),
+            self.Dwarf_uint8('address_size'),
+            self.Dwarf_uint8('segment_size'))
+        self.Dwarf_by_address_entry_segmented = Struct('Dwarf_by_address_entry_segmented',
+            self.Dwarf_target_addr('segment'),
+            self.Dwarf_target_addr('address'),
+            self.Dwarf_target_addr('length'))
+        self.Dwarf_by_address_entry_flat = Struct('Dwarf_by_address_entry_flat',
+            Value('segment', lambda ctx: None), 
+            self.Dwarf_target_addr('address'),
+            self.Dwarf_target_addr('length'))
 
     def _make_block_struct(self, length_field):
         """ Create a struct for DW_FORM_block<size>

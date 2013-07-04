@@ -31,8 +31,26 @@ class TestDebuggerSupport(unittest.TestCase):
             self.assertIsNotNone(main_DIE)
             self.assertEqual(main_DIE.attributes['DW_AT_name'].value,  b'main')
 
+    def _test_aranges(self, testfile):
+        with open(os.path.join('test', 'testfiles_for_readelf',
+                               testfile), 'rb') as f:
+            elf = ELFFile(f)
+            section = elf.get_section_by_name(b'.debug_aranges')
+            self.assertIsNotNone(section)
+
+            dwarfinfo = elf.get_dwarf_info()
+            aranges = dwarfinfo.aranges()
+            self.assertIsNotNone(aranges)
+
+            main_DIE = aranges.get_DIE(0x4004ec)
+            self.assertIsNotNone(main_DIE)
+            self.assertEqual(main_DIE.attributes['DW_AT_name'].value,  b'z.c')
+
     def test_pubnames(self):
         self._test_pubnames('exe_simple64.elf')
+
+    def test_aranges(self):
+        self._test_aranges('exe_simple64.elf')
 
 if __name__ == '__main__':
     unittest.main()

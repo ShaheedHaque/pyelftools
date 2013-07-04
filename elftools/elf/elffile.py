@@ -132,7 +132,8 @@ class ELFFile(object):
                         b'.debug_line', b'.debug_frame',
                         b'.debug_loc', b'.debug_ranges', 
                         b'.debug_pubnames', 
-                        b'.debug_pubtypes'):
+                        b'.debug_pubtypes', 
+                        b'.debug_aranges'):
             section = self.get_section_by_name(secname)
             if section is None:
                 debug_sections[secname] = None
@@ -156,7 +157,8 @@ class ELFFile(object):
                 debug_ranges_sec=debug_sections[b'.debug_ranges'],
                 debug_line_sec=debug_sections[b'.debug_line'], 
                 debug_pubnames_sec=debug_sections[b'.debug_pubnames'], 
-                debug_pubtypes_sec=debug_sections[b'.debug_pubtypes'])
+                debug_pubtypes_sec=debug_sections[b'.debug_pubtypes'], 
+                debug_aranges_sec=debug_sections[b'.debug_aranges'])
 
     def get_machine_arch(self):
         """ Return the machine architecture, as detected from the ELF header.

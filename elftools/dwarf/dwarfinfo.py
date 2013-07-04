@@ -17,7 +17,7 @@ from .abbrevtable import AbbrevTable
 from .lineprogram import LineProgram
 from .callframe import CallFrameInfo
 from .locationlists import LocationLists
-from .debugger import Pubnames, Pubtypes
+from .debugger import Pubnames, Pubtypes, ARanges
 from .ranges import RangeLists
 
 
@@ -66,7 +66,8 @@ class DWARFInfo(object):
             debug_ranges_sec,
             debug_line_sec,
             debug_pubnames_sec, 
-            debug_pubtypes_sec):
+            debug_pubtypes_sec, 
+            debug_aranges_sec):
         """ config:
                 A DwarfConfig object
 
@@ -86,6 +87,7 @@ class DWARFInfo(object):
         self.debug_line_sec = debug_line_sec
         self.debug_pubnames_sec = debug_pubnames_sec
         self.debug_pubtypes_sec = debug_pubtypes_sec
+        self.debug_aranges_sec = debug_aranges_sec
 
         # This is the DWARFStructs the context uses, so it doesn't depend on
         # DWARF format and address_size (these are determined per CU) - set them
@@ -192,7 +194,7 @@ class DWARFInfo(object):
         """
         if not self.debug_pubnames_sec:
             return None
-        return Pubnames(self,  self.debug_pubnames_sec.stream, self.structs,  self.debug_info_sec.stream)
+        return Pubnames(self,  self.debug_pubnames_sec.stream, self.structs, self.debug_info_sec.stream)
 
     def pubtypes(self):
         """ Get the object which represents the .debug_pubtypes section.
@@ -201,7 +203,16 @@ class DWARFInfo(object):
         """
         if not self.debug_pubtypes_sec:
             return None
-        return Pubtypes(self.debug_pubtypes_sec.stream, self.structs)
+        return Pubtypes(self, self.debug_pubtypes_sec.stream, self.structs, self.debug_info_sec.stream)
+
+    def aranges(self):
+        """ Get the object which represents the .debug_aranges section.
+
+        @return The object or None if we don't have a usable section.
+        """
+        if not self.debug_aranges_sec:
+            return None
+        return ARanges(self,  self.debug_aranges_sec.stream, self.structs, self.debug_info_sec.stream)
 
     #------ PRIVATE ------#
 
