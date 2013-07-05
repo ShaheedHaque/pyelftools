@@ -104,14 +104,10 @@ class ARanges(object):
             #print(self.stream.tell(),  max_offset, cu_shortcut)
             entry_struct = self.structs.Dwarf_by_address_entry_segmented if cu_shortcut.segment_size else self.structs.Dwarf_by_address_entry_flat
             #
-            # The documentation is silent on this point, but the values here 
-            # seem to be aligned, presumably for performance. TBD: what
-            # if segments are in use, and the segment size is not the same
-            # as the address size?
+            # The documentation is silent on this point, but there seems to be
+            # an undocumented 4 bytes here.
             #
-            unaligned = self.stream.tell() % cu_shortcut.address_size
-            if unaligned:
-                self.stream.seek(cu_shortcut.address_size - unaligned,  os.SEEK_CUR)
+            self.stream.seek(4,  os.SEEK_CUR)
             while True:
                 entry = struct_parse(entry_struct, self.stream)
                 if entry.length == 0 and entry.address == 0 and not entry.segment:
