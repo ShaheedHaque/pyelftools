@@ -58,7 +58,7 @@ class Pubnames(object):
                 if entry.offset == 0:
                     break
                 yield cu_shortcut, entry
-        return None,  None
+        return
 
 class Pubtypes(Pubnames):
     """ Low-  and high-level access to global types by name via 
@@ -117,4 +117,4 @@ class ARanges(object):
                 if entry.length == 0 and entry.address == 0 and not entry.segment:
                     break
                 yield cu_shortcut, entry
-        return None,  None
+        return
